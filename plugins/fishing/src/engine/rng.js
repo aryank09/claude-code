@@ -27,9 +27,19 @@ function weightedPick(items, weightFn) {
   return items[items.length - 1];
 }
 
-function pickFish(fishList) {
+// rarityBoost comes from equipped bait tier (see data/gear.json) - each
+// level makes rare/legendary fish proportionally more likely to be picked,
+// without touching common/uncommon weights.
+function pickFish(fishList, rarityBoost = 0) {
   const raritiesPresent = [...new Set(fishList.map((f) => f.rarity))];
-  const rarity = weightedPick(raritiesPresent, (r) => RARITY_WEIGHTS[r] || 1);
+  const weightFn = (r) => {
+    const base = RARITY_WEIGHTS[r] || 1;
+    if (rarityBoost > 0 && (r === 'rare' || r === 'legendary')) {
+      return base * (1 + rarityBoost * 0.8);
+    }
+    return base;
+  };
+  const rarity = weightedPick(raritiesPresent, weightFn);
   const candidates = fishList.filter((f) => f.rarity === rarity);
   return candidates[randInt(0, candidates.length - 1)];
 }

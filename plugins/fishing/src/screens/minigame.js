@@ -38,9 +38,10 @@ function clamp(v, min, max) {
 // stationary zone parked against a wall covered too much of the track,
 // "spam space" or "do nothing" would passively win by camping in place
 // instead of actively tracking the fish, which would make the mechanic
-// luck-based instead of skill-based.
-function createState(fish) {
-  const barHeight = Math.max(2, 5 - fish.difficulty);
+// luck-based instead of skill-based. `barBonus` comes from equipped rod
+// tier (see data/gear.json) and raises the floor for players who upgrade.
+function createState(fish, barBonus = 0) {
+  const barHeight = clamp(Math.max(3, 6 - fish.difficulty) + barBonus, 3, TRACK_HEIGHT);
   return {
     fish,
     barHeight,
@@ -48,15 +49,15 @@ function createState(fish) {
     fishVel: 0,
     barPos: (TRACK_HEIGHT - barHeight) / 2,
     barVel: 0,
-    progress: 40,
+    progress: 42,
     result: null,
     elapsedTicks: 0,
   };
 }
 
 function update(mg, spacePressed) {
-  const accelRange = 0.15 + mg.fish.difficulty * 0.05;
-  const maxFishSpeed = 0.4 + mg.fish.difficulty * 0.1;
+  const accelRange = 0.14 + mg.fish.difficulty * 0.045;
+  const maxFishSpeed = 0.37 + mg.fish.difficulty * 0.09;
 
   mg.fishVel += (Math.random() * 2 - 1) * accelRange;
   mg.fishVel = clamp(mg.fishVel, -maxFishSpeed, maxFishSpeed);
@@ -89,8 +90,8 @@ function update(mg, spacePressed) {
     mg.fishPos >= mg.barPos - 0.001 &&
     mg.fishPos <= mg.barPos + mg.barHeight - 1 + 0.001;
 
-  const fillRate = 3.6 - mg.fish.difficulty * 0.2;
-  const drainRate = 1.6 + mg.fish.difficulty * 0.25;
+  const fillRate = 3.8 - mg.fish.difficulty * 0.2;
+  const drainRate = 1.45 + mg.fish.difficulty * 0.22;
   mg.progress += overlap ? fillRate : -drainRate;
   mg.progress = clamp(mg.progress, 0, 100);
 

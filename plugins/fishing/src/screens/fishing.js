@@ -5,13 +5,14 @@ const {
   bold,
   dim,
   padCenter,
+  clip,
   boxTop,
   boxBottom,
   boxDivider,
   boxLine,
 } = require('../engine/renderer');
 
-const WIDTH = 54;
+const WIDTH = 60;
 const WATER_ROWS = 4;
 
 // Plain ASCII only in this scene (mountains/trees/water/bobber): emoji and
@@ -82,7 +83,7 @@ function getBobber(state, tick) {
 
 function hintLine(state, tick) {
   if (state.sub === 'idle') {
-    return dim('SPACE cast your line   ·   Q quit');
+    return dim('SPACE cast   ·   S shop   ·   Q quit');
   }
   if (state.sub === 'waiting') {
     const dots = '.'.repeat((tick % 4) + 1);
@@ -102,12 +103,16 @@ function render(state, tick) {
   lines.push(boxTop(WIDTH, 'TERMINAL TACKLE'));
   lines.push(boxLine(padCenter(bold(state.locationName), WIDTH), WIDTH));
   lines.push(boxDivider(WIDTH));
+  // Rod/bait names come from gear data and could grow with future items, so
+  // clip them defensively - this row has no room to spare (see clip() docs
+  // in renderer.js for why untruncated data-derived text is dangerous here).
+  const rodLabel = clip(state.rod, 10);
+  const baitLabel = clip(state.bait, 10);
+  const goldLabel = clip(String(state.gold), 7);
   lines.push(
     boxLine(
       padCenter(
-        `Rod: ${state.rod}   ·   Bait: ${state.bait}   ·   Gold: ${palette.gold(
-          String(state.gold)
-        )}`,
+        `Rod: ${rodLabel}   ·   Bait: ${baitLabel}   ·   Gold: ${palette.gold(goldLabel)}`,
         WIDTH
       ),
       WIDTH

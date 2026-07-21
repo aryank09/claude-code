@@ -59,6 +59,15 @@ function padRight(str, width) {
   return str + ' '.repeat(width - len);
 }
 
+// padCenter/padRight only ever ADD padding, they never truncate - so any
+// string built from data (gear names, fish names, descriptions) must be
+// clipped to a known-safe length before being placed in a fixed-width row,
+// or a too-long value will blow past the box's right border.
+function clip(str, maxLen) {
+  if (visibleLength(str) <= maxLen) return str;
+  return str.length > maxLen ? str.slice(0, Math.max(0, maxLen - 1)) + '…' : str;
+}
+
 function boxTop(width, title) {
   if (!title) return '╔' + '═'.repeat(width) + '╗';
   const label = ` ${title} `;
@@ -109,6 +118,7 @@ module.exports = {
   padCenter,
   padRight,
   visibleLength,
+  clip,
   boxTop,
   boxBottom,
   boxDivider,

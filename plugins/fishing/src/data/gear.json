@@ -1,0 +1,54 @@
+{
+  "rods": [
+    {
+      "id": "bamboo",
+      "name": "Bamboo Rod",
+      "shortName": "Bamboo",
+      "cost": 0,
+      "barBonus": 0,
+      "description": "The one you started with. Gets the job done."
+    },
+    {
+      "id": "fiberglass",
+      "name": "Fiberglass Rod",
+      "shortName": "Fiberglass",
+      "cost": 150,
+      "barBonus": 1,
+      "description": "Sturdier grip, bigger catch window."
+    },
+    {
+      "id": "graphite",
+      "name": "Graphite Rod",
+      "shortName": "Graphite",
+      "cost": 400,
+      "barBonus": 2,
+      "description": "Light, stiff, and built for landing the big ones."
+    }
+  ],
+  "baits": [
+    {
+      "id": "worm",
+      "name": "Worm",
+      "shortName": "Worm",
+      "cost": 0,
+      "rarityBoost": 0,
+      "description": "Reliable, if a little basic."
+    },
+    {
+      "id": "lure",
+      "name": "Shiny Lure",
+      "shortName": "Shiny Lure",
+      "cost": 80,
+      "rarityBoost": 1,
+      "description": "Flashy enough to tempt pickier fish."
+    },
+    {
+      "id": "premium-lure",
+      "name": "Premium Lure",
+      "shortName": "Premium",
+      "cost": 250,
+      "rarityBoost": 2,
+      "description": "Irresistible to even the rarest catches."
+    }
+  ]
+}

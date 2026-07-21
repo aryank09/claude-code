@@ -12,7 +12,16 @@ set -euo pipefail
 SAVE_DIR="$HOME/.claude-fishing"
 mkdir -p "$SAVE_DIR"
 
-GAME_PATH="${CLAUDE_PLUGIN_ROOT}/src/game.js"
+# Resolve our own absolute location rather than trusting CLAUDE_PLUGIN_ROOT
+# to be set/absolute. CLAUDE_PLUGIN_ROOT is only guaranteed inside a real
+# plugin invocation - this script may also run as a project-local dev copy
+# (e.g. via .claude/commands/) where that env var isn't set, and a relative
+# path here would defeat the whole point of printing a copy-pasteable
+# command for the user's own terminal.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PLUGIN_ROOT="$(dirname "$SCRIPT_DIR")"
+
+GAME_PATH="${PLUGIN_ROOT}/src/game.js"
 
 if [[ ! -f "$GAME_PATH" ]]; then
   echo "ERROR: game entry point not found at $GAME_PATH" >&2

@@ -6,11 +6,13 @@ const readline = require('readline');
 const renderer = require('./engine/renderer');
 const SaveEngine = require('./engine/save');
 const rng = require('./engine/rng');
+const gear = require('./engine/gear');
 
 const titleScreen = require('./screens/title');
 const fishingScreen = require('./screens/fishing');
 const minigame = require('./screens/minigame');
 const revealScreen = require('./screens/reveal');
+const shopScreen = require('./screens/shop');
 
 const FISH_LIST = require('./data/fish.json');
 const LOCATION_NAME = 'Dock at Lake Mistveil';
@@ -27,20 +29,27 @@ const state = {
   fishing: { sub: 'idle', biteTimer: 0, biteFlashTimer: 0 },
   minigame: null,
   reveal: null,
+  shop: null,
 };
-
-function capitalize(word) {
-  return word.charAt(0).toUpperCase() + word.slice(1);
-}
 
 function buildFishingDisplay() {
   return {
     sub: state.fishing.sub,
     locationName: LOCATION_NAME,
-    rod: capitalize(saveData.rod),
-    bait: capitalize(saveData.bait),
+    rod: gear.getRod(saveData.rod).shortName,
+    bait: gear.getBait(saveData.bait).shortName,
     gold: saveData.gold,
   };
+}
+
+function returnToFishingIdle() {
+  state.screen = 'fishing';
+  state.fishing = { sub: 'idle', biteTimer: 0, biteFlashTimer: 0 };
+}
+
+function openShop() {
+  state.screen = 'shop';
+  state.shop = { message: '', messageOk: false, messageTimer: 0 };
 }
 
 function restoreTerminal() {
@@ -93,12 +102,18 @@ function handleKeypress(str, key) {
     return;
   }
 
-  if (state.screen === 'fishing' && isSpace && state.fishing.sub === 'idle') {
-    state.fishing.sub = 'waiting';
-    state.fishing.biteTimer = rng.biteDelayMs();
-    SaveEngine.recordCast(saveData);
-    SaveEngine.save(saveData);
-    return;
+  if (state.screen === 'fishing' && state.fishing.sub === 'idle') {
+    if (isSpace) {
+      state.fishing.sub = 'waiting';
+      state.fishing.biteTimer = rng.biteDelayMs();
+      SaveEngine.recordCast(saveData);
+      SaveEngine.save(saveData);
+      return;
+    }
+    if (str && str.toLowerCase() === 's') {
+      openShop();
+      return;
+    }
   }
 
   if (state.screen === 'minigame' && isSpace) {
@@ -107,9 +122,26 @@ function handleKeypress(str, key) {
   }
 
   if (state.screen === 'reveal') {
-    state.screen = 'fishing';
-    state.fishing = { sub: 'idle', biteTimer: 0, biteFlashTimer: 0 };
+    returnToFishingIdle();
     return;
+  }
+
+  if (state.screen === 'shop') {
+    const isBack = (str && str.toLowerCase() === 'b') || (key && key.name === 'escape');
+    if (isBack) {
+      returnToFishingIdle();
+      return;
+    }
+    if (str && /^[0-9]$/.test(str)) {
+      const result = shopScreen.purchase(saveData, str);
+      if (result) {
+        SaveEngine.save(saveData);
+        state.shop.message = result.message;
+        state.shop.messageOk = result.success;
+        state.shop.messageTimer = 35;
+      }
+      return;
+    }
   }
 }
 
@@ -123,8 +155,10 @@ function tickFishing() {
   } else if (state.fishing.sub === 'bite') {
     state.fishing.biteFlashTimer -= TICK_MS;
     if (state.fishing.biteFlashTimer <= 0) {
-      const fish = rng.pickFish(FISH_LIST);
-      state.minigame = minigame.createState(fish);
+      const rarityBoost = gear.getBait(saveData.bait).rarityBoost;
+      const barBonus = gear.getRod(saveData.rod).barBonus;
+      const fish = rng.pickFish(FISH_LIST, rarityBoost);
+      state.minigame = minigame.createState(fish, barBonus);
       state.screen = 'minigame';
       return;
     }
@@ -156,6 +190,24 @@ function tickMinigame() {
   }
 }
 
+function tickShop() {
+  if (state.shop.messageTimer > 0) state.shop.messageTimer -= 1;
+
+  renderer.frame(
+    shopScreen.render(
+      {
+        gold: saveData.gold,
+        rodId: saveData.rod,
+        baitId: saveData.bait,
+        message: state.shop.message,
+        messageOk: state.shop.messageOk,
+        messageTimer: state.shop.messageTimer,
+      },
+      tick
+    )
+  );
+}
+
 function loop() {
   tick += 1;
 
@@ -167,6 +219,8 @@ function loop() {
     tickMinigame();
   } else if (state.screen === 'reveal') {
     renderer.frame(revealScreen.render(state.reveal, tick));
+  } else if (state.screen === 'shop') {
+    tickShop();
   }
 }
 

@@ -13,6 +13,8 @@ Because this is a real-time game with live animation and keyboard input, it need
 ## Controls
 
 - `SPACE` - cast your line; once a fish bites, mash or hold it to reel the catch zone up onto the fish
+- `S` - open the tackle shop from the idle fishing screen
+- `B` / `Escape` - back out of the shop
 - `Q` / `Ctrl+C` - quit anytime; progress is saved automatically before every state change
 
 ## How It Works
@@ -21,11 +23,20 @@ Because this is a real-time game with live animation and keyboard input, it need
 - **Reel it in** - a vertical "catch zone" that you control fights gravity while a fish swims around semi-randomly. Keep the zone overlapping the fish to fill the catch meter before it drains to zero or you tire out.
 - **Catch or escape** - land the fish for gold and a spot in your collection, or watch it swim away and try again.
 
-Difficulty (fish swim speed/erraticism and catch-zone size) scales with each species' rarity, so legendary fish are a real challenge even for a skilled player - the catch mechanic rewards actively tracking the fish, not just spamming the key.
+Difficulty (fish swim speed/erraticism and catch-zone size) scales with each species' rarity, so legendary fish are still a real challenge - the catch mechanic rewards actively tracking the fish, not just spamming the key.
+
+## The Tackle Shop
+
+Press `S` on the idle fishing screen to spend gold on better gear:
+
+- **Rods** widen your catch zone (`barBonus`), making every fish easier to land. Bamboo (starter) → Fiberglass (150g) → Graphite (400g).
+- **Bait** shifts the odds toward rarer fish (`rarityBoost`) on your next bite. Worm (starter) → Shiny Lure (80g) → Premium Lure (250g).
+
+Buying a tier equips it immediately; there's no separate inventory to manage. Rod/bait tiers are defined in `src/data/gear.json`, so adding a new one is just a new entry in that file (the shop menu numbering and purchase logic pick it up automatically).
 
 ## Progress & Saves
 
-Your gold, rod/bait, and fish collection are saved globally at `~/.claude-fishing/save.json`, so progress carries across every project you use Claude Code in.
+Your gold, equipped rod/bait, and fish collection are saved globally at `~/.claude-fishing/save.json`, so progress carries across every project you use Claude Code in.
 
 ## Architecture
 
@@ -40,13 +51,17 @@ fishing/
     ├── engine/
     │   ├── renderer.js          # raw ANSI helpers (no chalk - zero install step)
     │   ├── save.js              # save file read/write
-    │   └── rng.js                # fish selection, weight/value rolls, bite timing
+    │   ├── rng.js                # fish selection, weight/value rolls, bite timing
+    │   └── gear.js               # rod/bait catalog lookups (backed by data/gear.json)
     ├── screens/
     │   ├── title.js
     │   ├── fishing.js            # idle / waiting / bite states
     │   ├── minigame.js           # the reel-in mechanic (physics + render)
-    │   └── reveal.js             # catch card / escape card
-    └── data/fish.json            # fish species database
+    │   ├── reveal.js             # catch card / escape card
+    │   └── shop.js               # tackle shop - buy/equip rods & bait
+    └── data/
+        ├── fish.json             # fish species database
+        └── gear.json             # rod/bait tiers, cost, and bonuses
 ```
 
 Why a "launcher" pattern instead of running the game directly from the command? Claude Code executes command bash (`` !`...` ``) non-interactively and captures stdout as text - there's no real TTY handed to that process. A live game with raw-mode keypresses and an animation loop needs an actual terminal, so `/fishing` only prepares the environment and prints the exact command to run.
@@ -54,7 +69,6 @@ Why a "launcher" pattern instead of running the game directly from the command? 
 ## Roadmap Ideas (not built yet)
 
 - Additional locations with unique fish and ASCII scenery
-- A shop to spend gold on better rods/bait
 - A fish collection ("Pokédex") screen
 - Weather effects on bite rates
 
