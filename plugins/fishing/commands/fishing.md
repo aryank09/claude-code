@@ -28,9 +28,10 @@ node "GAME_PATH_HERE"
 
 **Controls:**
 - `SPACE` — cast your line, and later tap/hold it to reel in a biting fish
+- `S` — open the tackle shop to spend gold on better rods/bait (from the idle fishing screen)
 - `Q` or `Ctrl+C` — quit anytime (progress is saved automatically)
 
-Your gold, gear, and catch collection are saved globally at `SAVE_DIR_HERE`, so progress carries across every project.
+Your gold, gear, and catch collection are saved globally at `SAVE_DIR_HERE`, so progress carries across every project. The game also resizes live to fill whatever terminal window size you're using.
 
 Good luck out there. 🐟
 

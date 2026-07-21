@@ -25,6 +25,12 @@ Because this is a real-time game with live animation and keyboard input, it need
 
 Difficulty (fish swim speed/erraticism and catch-zone size) scales with each species' rarity, so legendary fish are still a real challenge - the catch mechanic rewards actively tracking the fish, not just spamming the key.
 
+## Resizing
+
+Every screen shares one box width derived live from your terminal's current column count, so resizing your terminal window makes the whole game bigger (or smaller) on the very next frame - no restart needed. It's clamped between a comfortable minimum and a maximum so the box never gets uncomfortably cramped or awkwardly stretched. The vertical "lake" scene also gains a few extra water rows on taller terminals.
+
+The minigame's internal catch-zone/track proportions are intentionally **not** resized with the window - only the surrounding box gets wider - so the reel-in difficulty is identical no matter how big your terminal is. If you shrink the window below the minimum, the game pauses gameplay rendering and shows a short "resize to keep playing" message instead of corrupting the layout; it resumes automatically once you size back up.
+
 ## The Tackle Shop
 
 Press `S` on the idle fishing screen to spend gold on better gear:
@@ -50,6 +56,7 @@ fishing/
     ├── game.js                  # entry point: TTY setup, input, game loop, teardown
     ├── engine/
     │   ├── renderer.js          # raw ANSI helpers (no chalk - zero install step)
+    │   ├── layout.js             # terminal-size-aware shared box width + centering
     │   ├── save.js              # save file read/write
     │   ├── rng.js                # fish selection, weight/value rolls, bite timing
     │   └── gear.js               # rod/bait catalog lookups (backed by data/gear.json)
@@ -75,4 +82,4 @@ Why a "launcher" pattern instead of running the game directly from the command? 
 ## Requirements
 
 - Node.js 16+
-- A terminal at least 60x24
+- A terminal at least 62x24 (bigger terminals just make the game bigger - see "Resizing" above)

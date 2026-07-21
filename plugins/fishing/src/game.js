@@ -7,6 +7,7 @@ const renderer = require('./engine/renderer');
 const SaveEngine = require('./engine/save');
 const rng = require('./engine/rng');
 const gear = require('./engine/gear');
+const layout = require('./engine/layout');
 
 const titleScreen = require('./screens/title');
 const fishingScreen = require('./screens/fishing');
@@ -145,7 +146,7 @@ function handleKeypress(str, key) {
   }
 }
 
-function tickFishing() {
+function tickFishing(view) {
   if (state.fishing.sub === 'waiting') {
     state.fishing.biteTimer -= TICK_MS;
     if (state.fishing.biteTimer <= 0) {
@@ -164,15 +165,18 @@ function tickFishing() {
     }
   }
 
-  renderer.frame(fishingScreen.render(buildFishingDisplay(), tick));
+  renderer.frame(
+    fishingScreen.render(buildFishingDisplay(), tick, view.width, view.rows),
+    view
+  );
 }
 
-function tickMinigame() {
+function tickMinigame(view) {
   const spacePressed = Boolean(state.minigame.spaceQueued);
   state.minigame.spaceQueued = false;
 
   const result = minigame.update(state.minigame, spacePressed);
-  renderer.frame(minigame.render(state.minigame, tick));
+  renderer.frame(minigame.render(state.minigame, tick, view.width), view);
 
   if (result === 'win') {
     const fish = state.minigame.fish;
@@ -190,7 +194,7 @@ function tickMinigame() {
   }
 }
 
-function tickShop() {
+function tickShop(view) {
   if (state.shop.messageTimer > 0) state.shop.messageTimer -= 1;
 
   renderer.frame(
@@ -203,24 +207,53 @@ function tickShop() {
         messageOk: state.shop.messageOk,
         messageTimer: state.shop.messageTimer,
       },
-      tick
-    )
+      tick,
+      view.width
+    ),
+    view
+  );
+}
+
+function renderTooSmall(view) {
+  renderer.frame(
+    [
+      '',
+      renderer.bold(renderer.palette.bad('Terminal window too small to keep playing.')),
+      '',
+      `Currently ${view.cols}x${view.rows} - need at least ` +
+        `${layout.MIN_TERMINAL_COLS}x${layout.MIN_TERMINAL_ROWS}.`,
+      '',
+      renderer.dim('Resize your terminal window; the game will resume automatically.'),
+    ],
+    view
   );
 }
 
 function loop() {
   tick += 1;
+  // Recomputed every tick (cheap) rather than cached, so a live terminal
+  // resize is reflected on the very next frame with no extra event wiring.
+  const view = layout.getLayout();
+
+  // Below this size the box (view.width + 2 border chars) would be wider
+  // than the terminal itself and wrap, corrupting the ASCII art alignment.
+  // Everything simply pauses here (bite timers, minigame physics, the
+  // timeout clock) rather than ticking blindly with no visible feedback -
+  // it resumes exactly where it left off once they resize back up.
+  if (view.cols < layout.MIN_TERMINAL_COLS || view.rows < layout.MIN_TERMINAL_ROWS) {
+    return renderTooSmall(view);
+  }
 
   if (state.screen === 'title') {
-    renderer.frame(titleScreen.render(tick));
+    renderer.frame(titleScreen.render(tick, view.width), view);
   } else if (state.screen === 'fishing') {
-    tickFishing();
+    tickFishing(view);
   } else if (state.screen === 'minigame') {
-    tickMinigame();
+    tickMinigame(view);
   } else if (state.screen === 'reveal') {
-    renderer.frame(revealScreen.render(state.reveal, tick));
+    renderer.frame(revealScreen.render(state.reveal, tick, view.width), view);
   } else if (state.screen === 'shop') {
-    tickShop();
+    tickShop(view);
   }
 }
 
@@ -233,12 +266,11 @@ function main() {
     process.exit(1);
   }
 
-  const cols = process.stdout.columns || 80;
-  const rows = process.stdout.rows || 24;
-  if (cols < 60 || rows < 24) {
+  const { cols, rows } = layout.getTerminalSize();
+  if (cols < layout.MIN_TERMINAL_COLS || rows < layout.MIN_TERMINAL_ROWS) {
     console.error(
       `Your terminal window is a bit small (${cols}x${rows}). ` +
-        'Please resize to at least 60x24 and try again.'
+        `Please resize to at least ${layout.MIN_TERMINAL_COLS}x${layout.MIN_TERMINAL_ROWS} and try again.`
     );
     process.exit(1);
   }

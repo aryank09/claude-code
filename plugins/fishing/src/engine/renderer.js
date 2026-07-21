@@ -105,9 +105,38 @@ function exitAltScreen() {
   process.stdout.write(`${ESC}[?1049l`);
 }
 
-function frame(lines) {
+// `size` (the live terminal { cols, rows }) is optional so existing callers
+// and tests that just want raw lines keep working. When provided, the
+// frame is centered in the terminal instead of pinned to the top-left,
+// which is what makes a resized (bigger) terminal actually feel used
+// rather than just leaving a fixed-size box surrounded by blank space in
+// one corner.
+function frame(lines, size) {
+  let outLines = lines;
+
+  if (size && size.cols) {
+    const maxLineWidth = Math.max(0, ...lines.map(visibleLength));
+    const leftPad = Math.max(0, Math.floor((size.cols - maxLineWidth) / 2));
+    if (leftPad > 0) {
+      const pad = ' '.repeat(leftPad);
+      outLines = outLines.map((line) => pad + line);
+    }
+  }
+
+  if (size && size.rows) {
+    // Only pad above; the terminal's own bottom edge is the "center" from
+    // below once content plus top padding fills at most `size.rows`, no
+    // separate bottom padding needed (and it'd risk scrolling if we guessed
+    // line-height wrong for any reason).
+    const extra = size.rows - outLines.length;
+    if (extra > 0) {
+      const top = Math.floor(extra / 2);
+      outLines = [...new Array(top).fill(''), ...outLines];
+    }
+  }
+
   // Move cursor home and redraw in one write to minimize flicker.
-  process.stdout.write(`${ESC}[H${ESC}[2J` + lines.join('\r\n') + '\r\n');
+  process.stdout.write(`${ESC}[H${ESC}[2J` + outLines.join('\r\n') + '\r\n');
 }
 
 module.exports = {

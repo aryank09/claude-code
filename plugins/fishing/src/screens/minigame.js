@@ -11,7 +11,12 @@ const {
   boxLine,
 } = require('../engine/renderer');
 
-const WIDTH = 40;
+// TRACK_HEIGHT is deliberately NOT resized with the terminal: barHeight is
+// tuned as a formula relative to this exact constant (see createState), so
+// changing it per-terminal would silently shift catch difficulty depending
+// on how tall the user's window happens to be. Only the horizontal WIDTH
+// (purely cosmetic here - it doesn't touch physics) responds to terminal
+// size, via the `width` param threaded through the render functions below.
 const TRACK_HEIGHT = 14;
 
 const GRAVITY = 0.9;
@@ -110,19 +115,19 @@ function rarityColor(rarity) {
   return palette.fish;
 }
 
-function buildTrackRow(row, mg) {
+function buildTrackRow(row, mg, width) {
   const barTop = Math.round(mg.barPos);
   const barBottom = barTop + mg.barHeight - 1;
   const isBar = row >= barTop && row <= barBottom;
   const fishColor = rarityColor(mg.fish.rarity);
   const bgColor = isBar ? palette.good : palette.muted;
   const bgChar = isBar ? '=' : '.';
-  const chars = new Array(WIDTH).fill(bgChar);
+  const chars = new Array(width).fill(bgChar);
 
   if (Math.round(mg.fishPos) === row) {
-    const art = mg.fish.art.slice(0, WIDTH);
-    const start = Math.max(0, Math.floor((WIDTH - art.length) / 2));
-    const end = Math.min(WIDTH, start + art.length);
+    const art = mg.fish.art.slice(0, width);
+    const start = Math.max(0, Math.floor((width - art.length) / 2));
+    const end = Math.min(width, start + art.length);
     const prefix = chars.slice(0, start).join('');
     const suffix = chars.slice(end).join('');
     return bgColor(prefix) + fishColor(art) + bgColor(suffix);
@@ -131,31 +136,31 @@ function buildTrackRow(row, mg) {
   return bgColor(chars.join(''));
 }
 
-function progressBar(progress) {
-  const filled = Math.round((progress / 100) * WIDTH);
+function progressBar(progress, width) {
+  const filled = Math.round((progress / 100) * width);
   const color = progress < 33 ? palette.bad : progress < 66 ? palette.gold : palette.good;
-  return color('█'.repeat(filled)) + dim('░'.repeat(Math.max(0, WIDTH - filled)));
+  return color('█'.repeat(filled)) + dim('░'.repeat(Math.max(0, width - filled)));
 }
 
-function render(mg, tick) {
+function render(mg, tick, width) {
   const lines = [];
 
-  lines.push(boxTop(WIDTH, 'REEL IT IN'));
+  lines.push(boxTop(width, 'REEL IT IN'));
   lines.push(
-    boxLine(padCenter(bold('Something is on the line!'), WIDTH), WIDTH)
+    boxLine(padCenter(bold('Something is on the line!'), width), width)
   );
-  lines.push(boxDivider(WIDTH));
+  lines.push(boxDivider(width));
 
   for (let row = 0; row < TRACK_HEIGHT; row++) {
-    lines.push(boxLine(buildTrackRow(row, mg), WIDTH));
+    lines.push(boxLine(buildTrackRow(row, mg, width), width));
   }
 
-  lines.push(boxDivider(WIDTH));
-  lines.push(boxLine(progressBar(mg.progress), WIDTH));
+  lines.push(boxDivider(width));
+  lines.push(boxLine(progressBar(mg.progress, width), width));
   lines.push(
-    boxLine(padCenter(`${Math.round(mg.progress)}%`, WIDTH), WIDTH)
+    boxLine(padCenter(`${Math.round(mg.progress)}%`, width), width)
   );
-  lines.push(boxLine('', WIDTH));
+  lines.push(boxLine('', width));
 
   const blink = tick % 2 === 0;
   const tiring = mg.elapsedTicks >= TIMEOUT_TICKS * 0.75;
@@ -163,10 +168,10 @@ function render(mg, tick) {
     ? "your arms are tiring out - reel it in soon!"
     : 'mash / hold SPACE to reel up  ·  Q quit';
   const styledHint = tiring ? palette.bad(bold(hint)) : blink ? bold(hint) : dim(hint);
-  lines.push(boxLine(padCenter(styledHint, WIDTH), WIDTH));
-  lines.push(boxBottom(WIDTH));
+  lines.push(boxLine(padCenter(styledHint, width), width));
+  lines.push(boxBottom(width));
 
   return lines;
 }
 
-module.exports = { createState, update, render, WIDTH, TRACK_HEIGHT };
+module.exports = { createState, update, render, TRACK_HEIGHT };
