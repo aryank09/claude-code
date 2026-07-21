@@ -1,0 +1,8 @@
+{
+  "name": "fishing",
+  "version": "1.0.0",
+  "description": "A Stardew-inspired ASCII fishing game for your terminal. Take a break with /fishing.",
+  "author": {
+    "name": "Claude Code Community"
+  }
+}

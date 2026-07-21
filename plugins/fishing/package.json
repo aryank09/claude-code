@@ -1,0 +1,11 @@
+{
+  "name": "claude-code-fishing",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Terminal ASCII fishing game bundled as a Claude Code plugin",
+  "main": "src/game.js",
+  "engines": {
+    "node": ">=16"
+  },
+  "dependencies": {}
+}

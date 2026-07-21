@@ -70,6 +70,16 @@
       "category": "development"
     },
     {
+      "name": "fishing",
+      "description": "A Stardew-inspired ASCII fishing game for your terminal. Take a break with /fishing.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Claude Code Community"
+      },
+      "source": "./plugins/fishing",
+      "category": "productivity"
+    },
+    {
       "name": "frontend-design",
       "description": "Create distinctive, production-grade frontend interfaces with high design quality. Generates creative, polished code that avoids generic AI aesthetics.",
       "version": "1.1.0",

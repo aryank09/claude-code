@@ -1,0 +1,82 @@
+[
+  {
+    "id": "bluegill",
+    "name": "Bluegill",
+    "rarity": "common",
+    "weightRange": [0.2, 1.2],
+    "baseValue": 8,
+    "art": "><(('>",
+    "difficulty": 1,
+    "flavor": "Small, scrappy, and always hungry. Every angler's first catch."
+  },
+  {
+    "id": "perch",
+    "name": "Perch",
+    "rarity": "common",
+    "weightRange": [0.4, 2.0],
+    "baseValue": 10,
+    "art": "><((('>",
+    "difficulty": 1,
+    "flavor": "Stripes like a tiny tiger. Surprisingly good eating."
+  },
+  {
+    "id": "bass",
+    "name": "Largemouth Bass",
+    "rarity": "uncommon",
+    "weightRange": [1.5, 6.0],
+    "baseValue": 25,
+    "art": "><[[[[(°>",
+    "difficulty": 2,
+    "flavor": "It hits the line like it's got somewhere to be."
+  },
+  {
+    "id": "trout",
+    "name": "Rainbow Trout",
+    "rarity": "uncommon",
+    "weightRange": [1.0, 4.0],
+    "baseValue": 22,
+    "art": "≈><((('°>",
+    "difficulty": 2,
+    "flavor": "Iridescent scales that shimmer even in dim light."
+  },
+  {
+    "id": "catfish",
+    "name": "Channel Catfish",
+    "rarity": "uncommon",
+    "weightRange": [3.0, 15.0],
+    "baseValue": 30,
+    "art": "><===(°>~~",
+    "difficulty": 3,
+    "flavor": "Whiskered and stubborn. It fights dirty, right along the bottom."
+  },
+  {
+    "id": "pufferfish",
+    "name": "Pufferfish",
+    "rarity": "rare",
+    "weightRange": [1.0, 3.0],
+    "baseValue": 85,
+    "art": "><(((*>",
+    "difficulty": 4,
+    "flavor": "Its spines are surprisingly soft when caught off-guard."
+  },
+  {
+    "id": "golden-carp",
+    "name": "Golden Carp",
+    "rarity": "rare",
+    "weightRange": [2.0, 8.0],
+    "baseValue": 120,
+    "art": "><[[{{{°>",
+    "difficulty": 4,
+    "flavor": "Scales like hammered gold. Local legend says it brings luck."
+  },
+  {
+    "id": "ancient-leviathan",
+    "name": "Ancient Leviathan",
+    "rarity": "legendary",
+    "weightRange": [20.0, 80.0],
+    "baseValue": 500,
+    "art": "><{{{{{{{{°>~~~",
+    "difficulty": 5,
+    "flavor": "Older than the dock itself. Most anglers only ever hear the splash."
+  }
+]
