@@ -1,0 +1,33 @@
+{
+  "statusLine": {
+    "type": "command",
+    "command": "node /Users/aryankhanna/Documents/GitHub/claude-code/plugins/pet/scripts/statusline.js",
+    "padding": 1,
+    "refreshInterval": 30
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ${CLAUDE_PROJECT_DIR}/plugins/pet/scripts/feed.js",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "UserPromptExpansion": [
+      {
+        "matcher": "pet",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ${CLAUDE_PROJECT_DIR}/plugins/pet/scripts/pet-cmd.js",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

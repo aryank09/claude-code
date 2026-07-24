@@ -1,0 +1,8 @@
+{
+  "name": "pet",
+  "version": "0.1.0",
+  "description": "A Tamagotchi-style terminal pet that lives in your status line and slowly gets hungry when you stop using the terminal. Zero API tokens.",
+  "author": {
+    "name": "Aryan Khanna"
+  }
+}

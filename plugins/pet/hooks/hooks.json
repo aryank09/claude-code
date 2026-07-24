@@ -1,0 +1,28 @@
+{
+  "description": "Terminal pet: feed on activity, /pet command handled locally.",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/feed.js",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "UserPromptExpansion": [
+      {
+        "matcher": "pet",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ${CLAUDE_PLUGIN_ROOT}/scripts/pet-cmd.js",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
