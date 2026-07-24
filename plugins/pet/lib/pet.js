@@ -9,20 +9,19 @@ const os = require('os');
 const path = require('path');
 
 // ---------------------------------------------------------------------------
-// Tuning ("sensible amount of time"). All values are in seconds.
-// A developer working normally keeps the pet thriving/content. Leaving it
-// overnight makes it hungry; a full weekend of total neglect kills it.
-// Adjust these to taste.
+// Tuning. All values are in seconds. Fast lifecycle: a short break leaves the
+// pet hungry, and a couple hours of total neglect kills it, so you can watch
+// it change within a single session. Adjust these to taste.
 // ---------------------------------------------------------------------------
 const MINUTE = 60;
 const HOUR = 60 * MINUTE;
 
 const STAGES = [
-  { key: 'thriving', until: 2 * HOUR },
-  { key: 'content', until: 6 * HOUR },
-  { key: 'hungry', until: 12 * HOUR },
-  { key: 'sad', until: 24 * HOUR },
-  { key: 'sick', until: 48 * HOUR },
+  { key: 'thriving', until: 5 * MINUTE },
+  { key: 'content', until: 15 * MINUTE },
+  { key: 'hungry', until: 30 * MINUTE },
+  { key: 'sad', until: 60 * MINUTE },
+  { key: 'sick', until: 120 * MINUTE },
 ];
 // Neglect beyond the last stage's `until` (48h) means the pet dies.
 const DEATH_AFTER = STAGES[STAGES.length - 1].until;

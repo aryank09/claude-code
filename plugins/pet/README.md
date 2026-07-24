@@ -43,15 +43,15 @@ Time since your last interaction drives the mood. Defaults:
 
 | Stage | Time since last activity | Face |
 | --- | --- | --- |
-| thriving | < 2h | `(◕ᴗ◕)` |
-| content | 2–6h | `(・ᴗ・)` |
-| hungry | 6–12h | `(・﹏・)` |
-| lonely | 12–24h | `(╥﹏╥)` |
-| sick | 24–48h | `(×﹏×)` |
-| **gone** | > 48h | `(✝︿✝)` |
+| thriving | < 5m | `(◕ᴗ◕)` |
+| content | 5–15m | `(・ᴗ・)` |
+| hungry | 15–30m | `(・﹏・)` |
+| lonely | 30–60m | `(╥﹏╥)` |
+| sick | 1–2h | `(×﹏×)` |
+| **gone** | > 2h | `(✝︿✝)` |
 
-So normal work keeps it thriving, an overnight break leaves it hungry (easily
-revived by just working again), and a full weekend of total silence will end it.
+So active work keeps it thriving, a short coffee break leaves it hungry (easily
+revived by just working again), and a couple hours of total silence will end it.
 
 **Tune it:** edit the `STAGES` array at the top of
 [`lib/pet.js`](lib/pet.js). All values are in seconds; the last stage's `until`
@@ -77,7 +77,7 @@ This repo is already wired via `.claude/settings.json`:
     "type": "command",
     "command": "node /absolute/path/to/plugins/pet/scripts/statusline.js",
     "padding": 1,
-    "refreshInterval": 30
+    "refreshInterval": 5
   },
   "hooks": {
     "UserPromptSubmit": [

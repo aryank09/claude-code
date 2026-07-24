@@ -3,7 +3,7 @@
     "type": "command",
     "command": "node /Users/aryankhanna/Documents/GitHub/claude-code/plugins/pet/scripts/statusline.js",
     "padding": 1,
-    "refreshInterval": 30
+    "refreshInterval": 5
   },
   "hooks": {
     "UserPromptSubmit": [
