@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "UserPromptExpansion": [
+      {
+        "matcher": "fishing",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/plugins/fishing/scripts/hook-launch.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

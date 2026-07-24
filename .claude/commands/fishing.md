@@ -20,7 +20,9 @@ If it succeeded, tell the user something like the following (fill in the real `G
 
 🎣 **Terminal Tackle is ready.**
 
-This is a real-time game with animation and keyboard input, so it needs to run in an actual terminal window rather than inside this chat. Open a terminal and run:
+This is a real-time game with animation and keyboard input, so it needs to run as its own foreground process rather than inside this chat.
+
+**Fastest way, same window:** press `Ctrl+Z` to suspend Claude Code, run the command below, then run `fg` when you're done to bring Claude Code back exactly where you left it. (Or open a new terminal tab and run it there instead.)
 
 ```bash
 node "GAME_PATH_HERE"

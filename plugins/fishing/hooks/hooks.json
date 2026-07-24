@@ -1,0 +1,16 @@
+{
+  "description": "Launches the fishing game directly when /fishing is typed, before it ever expands into a prompt - no API call.",
+  "hooks": {
+    "UserPromptExpansion": [
+      {
+        "matcher": "fishing",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/hook-launch.sh"
+          }
+        ]
+      }
+    ]
+  }
+}

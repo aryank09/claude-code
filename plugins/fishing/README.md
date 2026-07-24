@@ -8,7 +8,15 @@ A Stardew Valley-inspired ASCII fishing game for your terminal. Take a break wit
 /fishing
 ```
 
-Because this is a real-time game with live animation and keyboard input, it needs an actual TTY (terminal), which a Claude Code command's tool execution does not provide. Running `/fishing` prepares everything and gives you a one-line `node` command to paste into your own terminal window.
+Because this is a real-time game with live animation and keyboard input, it needs an actual TTY (terminal), which a Claude Code command's tool execution does not provide. A `UserPromptExpansion` hook intercepts `/fishing` before it ever reaches Claude, so the launch instructions appear instantly with **zero API calls and zero tokens** - it's pure local text, not a model response.
+
+From there, the fastest way to actually play **in the very same terminal window** is:
+
+1. Press `Ctrl+Z` - this is a built-in Claude Code feature that suspends the session and hands the terminal back to your shell (`Claude Code has been suspended. Run fg to bring Claude Code back.`).
+2. Run the `node` command the hook gave you and play.
+3. Run `fg` to bring Claude Code back exactly where you left it.
+
+No new terminal tab needed. (You can also just open a new tab and run the same command there, if you'd rather keep Claude Code running untouched.)
 
 ## Controls
 
@@ -49,8 +57,11 @@ Your gold, equipped rod/bait, and fish collection are saved globally at `~/.clau
 ```
 fishing/
 ├── .claude-plugin/plugin.json   # plugin manifest
-├── commands/fishing.md          # /fishing command - prepares & launches the game
-├── scripts/setup-fishing.sh     # ensures the save dir exists, resolves the game path
+├── hooks/hooks.json              # UserPromptExpansion hook - intercepts /fishing pre-model
+├── commands/fishing.md          # /fishing command - fallback if the hook doesn't fire
+├── scripts/
+│   ├── hook-launch.sh            # hook handler: prints instructions, blocks the expansion
+│   └── setup-fishing.sh          # used by the command-based fallback path
 ├── package.json                 # no runtime dependencies
 └── src/
     ├── game.js                  # entry point: TTY setup, input, game loop, teardown
@@ -71,7 +82,14 @@ fishing/
         └── gear.json             # rod/bait tiers, cost, and bonuses
 ```
 
-Why a "launcher" pattern instead of running the game directly from the command? Claude Code executes command bash (`` !`...` ``) non-interactively and captures stdout as text - there's no real TTY handed to that process. A live game with raw-mode keypresses and an animation loop needs an actual terminal, so `/fishing` only prepares the environment and prints the exact command to run.
+Why a "launcher" pattern instead of running the game directly from `/fishing`? Two separate constraints stack up here:
+
+1. **Slash commands normally cost a model turn.** Every custom command expands into a prompt for Claude, which means an API call and a bit of latency just to print a static "here's how to launch it" message. The `UserPromptExpansion` hook (`hooks/hooks.json` → `scripts/hook-launch.sh`) fixes this specifically: it fires *before* `/fishing` expands into a prompt, prints the instructions itself, and returns `{"decision": "block"}` so Claude never sees it. No tokens, no latency, no model in the loop at all.
+2. **Hooks can't hand you the terminal.** As of Claude Code v2.1.139, command hooks (and anything they spawn) run in their own session with no controlling terminal - by design, so a hook can't hijack your keyboard input or draw over the Claude Code UI. Claude Code itself keeps live keyboard input while a hook runs (e.g. for `esc to interrupt`), so a hook-spawned process never actually receives your keystrokes even if it manages to render output. That's a hard architectural limit, not a bug to work around - which is why the actual interactive game still has to be launched by you, as a normal foreground process, in a session that genuinely owns the terminal.
+
+`Ctrl+Z` gets you there without leaving the window: it suspends Claude Code (a real, built-in feature - not a hack) and hands the terminal's controlling session back to your shell, which the game can then take over normally, keypresses and all. `fg` hands it back to Claude Code afterward.
+
+So `/fishing` gets you the fastest, cheapest possible path to the one command you need to run yourself: an instant, free, local response instead of a full model round trip, plus a same-window way to actually use it.
 
 ## Roadmap Ideas (not built yet)
 
